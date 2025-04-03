@@ -1,6 +1,0 @@
-streamlit
-pandas
-mysql-connector-python
-seaborn
-matplotlib
-numpy
