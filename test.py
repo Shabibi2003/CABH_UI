@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import mysql.connector
+# import mysql.connector
 from datetime import datetime
 import seaborn as sns
 import matplotlib.pyplot as plt
