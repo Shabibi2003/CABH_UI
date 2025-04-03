@@ -1,7 +1,6 @@
 streamlit
+pandas
+mysql-connector-python
+seaborn
 matplotlib
 numpy
-seaborn
-pandas 
-calendar
-sql-connector
