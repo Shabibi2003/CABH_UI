@@ -11,7 +11,7 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 st.set_page_config(
     page_title="Indoor Air Quality Dashboard",  # Title on browser tab
     page_icon="🌫️",                            # Emoji or image
-    layout="wide",                              # 'centered' or 'wide'
+    layout="centered",                              # 'centered' or 'wide'
     initial_sidebar_state="expanded"            # Or 'collapsed'
 )
 
