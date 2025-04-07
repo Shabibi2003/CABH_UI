@@ -147,7 +147,7 @@ def plot_and_display_feature_heatmaps(indoor_df, features, year, month):
     calendar_data = np.full((5, 7), np.nan) 
 
     # Compute daily averages for all features at once
-    daily_averages = df.resample('D').mean()
+    daily_averages = indoor_df.resample('D').mean()
 
     for feature in features:
         if feature not in daily_averages.columns:
@@ -264,7 +264,6 @@ if st.button("Generate Line Charts"):
             cursor.execute(outdoor_query, (outdoor_device_id, year, selected_month))
             outdoor_rows = cursor.fetchall()
 
-
             if indoor_rows and outdoor_rows:
                 # Process indoor data
                 indoor_df = pd.DataFrame(indoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
@@ -278,19 +277,13 @@ if st.button("Generate Line Charts"):
                 outdoor_df.set_index('datetime', inplace=True)
                 outdoor_df = outdoor_df.resample('D').mean()  # Resample to daily averages
 
-             else:
+                features = ['pm25', 'pm10', 'aqi', 'co2', 'voc', 'temp', 'humidity']  # Define the list of features
+                plot_and_display_feature_heatmaps(indoor_df, features, year, selected_month)
+
+                plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names)
+
+            else:
                 st.warning("No data found for the given Device ID and selected month.")
-                
-else:
-    st.warning("No data found for the given Device IDs and selected month.")
-
-
-for feature in pollutant_display_names.keys():
-    plot_and_display_feature_heatmaps(df, [feature], year, selected_month)
-    
-           
-plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names)
-                  
 
         except mysql.connector.Error as e:
             st.error(f"Database error: {e}")
