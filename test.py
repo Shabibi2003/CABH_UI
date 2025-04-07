@@ -120,7 +120,7 @@ def plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names)
             plt.close()
 
 # Function to plot and display heatmaps for each feature (pollutant)
-def plot_and_display_feature_heatmaps(df, features, year, month):
+def plot_and_display_feature_heatmaps(indoor_df, features, year, month):
     feature_boundaries = {
         'aqi': [0, 50, 100, 150, 200, 300, 500],
         'pm25': [0, 12, 35, 55, 150, 250, 500],
@@ -264,13 +264,6 @@ if st.button("Generate Line Charts"):
             cursor.execute(outdoor_query, (outdoor_device_id, year, selected_month))
             outdoor_rows = cursor.fetchall()
 
-            query = """
-            SELECT datetime, pm25, pm10, aqi, co2, voc, temp, humidity
-            FROM reading_db
-            WHERE deviceID = %s AND YEAR(datetime) = %s AND MONTH(datetime) = %s AND DateTime >= '2024-01-01';
-            """
-            cursor.execute(query, (device_id, year, selected_month))
-            rows = cursor.fetchall()
 
             if indoor_rows and outdoor_rows:
                 # Process indoor data
@@ -285,27 +278,19 @@ if st.button("Generate Line Charts"):
                 outdoor_df.set_index('datetime', inplace=True)
                 outdoor_df = outdoor_df.resample('D').mean()  # Resample to daily averages
 
-            else:
-                st.warning("No data found for the given Device IDs and selected month.")
-                
-            if rows:
-                # Process data
-                df = pd.DataFrame(rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
-                df['datetime'] = pd.to_datetime(df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
-                df.set_index('datetime', inplace=True)
-    
-                st.success("Data fetched successfully.")
-
-                # Generate heatmaps sequentially
-                for feature in pollutant_display_names.keys():
-                    plot_and_display_feature_heatmaps(df, [feature], year, selected_month)
-    
-            else:
+             else:
                 st.warning("No data found for the given Device ID and selected month.")
-                # Plot line charts
-                plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names)
                 
-            
+else:
+    st.warning("No data found for the given Device IDs and selected month.")
+
+
+for feature in pollutant_display_names.keys():
+    plot_and_display_feature_heatmaps(df, [feature], year, selected_month)
+    
+           
+plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names)
+                  
 
         except mysql.connector.Error as e:
             st.error(f"Database error: {e}")
