@@ -206,10 +206,12 @@ st.markdown("""
             margin-top: 30px;
             margin-bottom: 30px;
         }
-    </style>""")
+    </style>
+""", unsafe_allow_html=True)
 
 st.markdown('<h1 class="title">Indoor Air Quality Trends</h1>', unsafe_allow_html=True)
-        
+st.markdown("<br>", unsafe_allow_html=True)
+
 # Create columns for user inputs (deviceID, year, month)
 col1, col2, col3 = st.columns(3)    
 with col1:
