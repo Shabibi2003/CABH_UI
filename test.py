@@ -264,6 +264,14 @@ if st.button("Generate Line Charts"):
             cursor.execute(outdoor_query, (outdoor_device_id, year, selected_month))
             outdoor_rows = cursor.fetchall()
 
+            query = """
+            SELECT datetime, pm25, pm10, aqi, co2, voc, temp, humidity
+            FROM reading_db
+            WHERE deviceID = %s AND YEAR(datetime) = %s AND MONTH(datetime) = %s AND DateTime >= '2024-01-01';
+            """
+            cursor.execute(query, (device_id, year, selected_month))
+            rows = cursor.fetchall()
+
             if indoor_rows and outdoor_rows:
                 # Process indoor data
                 indoor_df = pd.DataFrame(indoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
