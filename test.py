@@ -297,7 +297,7 @@ if st.button("Generate Charts"):
                 features = ['pm25', 'pm10', 'aqi', 'co2', 'voc', 'temp', 'humidity'] 
                 plot_and_display_feature_heatmaps(indoor_df, features, year, selected_month)
                 
-                st.markdowm("<br>", unsafe_allow_html= True)
+                st.markdown("<br>", unsafe_allow_html= True)
                 st.markdown("<h3 style='font-size:24px;'>Line Charts of Indoor & Outdoor</h3>", unsafe_allow_html=True)
                 st.markdown("<br>")
 
