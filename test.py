@@ -277,12 +277,27 @@ if st.button("Generate Line Charts"):
                 outdoor_df.set_index('datetime', inplace=True)
                 outdoor_df = outdoor_df.resample('D').mean()  # Resample to daily averages
 
-                # Plot line charts
-                plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names)
-                for feature in pollutant_display_names.keys():
-                    plot_and_display_feature_heatmaps(df, features, year, month)
             else:
                 st.warning("No data found for the given Device IDs and selected month.")
+                
+            if rows:
+                # Process data
+                df = pd.DataFrame(rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
+                df['datetime'] = pd.to_datetime(df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
+                df.set_index('datetime', inplace=True)
+    
+                st.success("Data fetched successfully.")
+
+                # Generate heatmaps sequentially
+                for feature in pollutant_display_names.keys():
+                    plot_and_display_feature_heatmaps(df, [feature], year, selected_month)
+    
+            else:
+                st.warning("No data found for the given Device ID and selected month.")
+                # Plot line charts
+                plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names)
+                
+            
 
         except mysql.connector.Error as e:
             st.error(f"Database error: {e}")
