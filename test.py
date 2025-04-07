@@ -206,7 +206,7 @@ st.markdown("""
             margin-top: 30px;
             margin-bottom: 30px;
         }
-    </style>"""
+    </style>""")
 
 st.markdown('<h1 class="title">Indoor Air Quality Trends</h1>', unsafe_allow_html=True)
         
