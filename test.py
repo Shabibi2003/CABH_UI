@@ -192,11 +192,26 @@ def plot_and_display_feature_heatmaps(indoor_df, features, year, month):
         st.pyplot(fig)
         plt.close()
 # Streamlit UI
+st.markdown("""
+    <style>
+        .title {
+            font-size: 36px;
+            text-align: center;
+            padding: 20px;
+            border-radius: 80px;
+            border-bottom: 4px solid red;  /* Red underline */
+        }
+        .red-line {
+            border-top: 3px solid red;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+    </style>"""
+
 st.markdown('<h1 class="title">Indoor Air Quality Trends</h1>', unsafe_allow_html=True)
-
+        
 # Create columns for user inputs (deviceID, year, month)
-col1, col2, col3 = st.columns(3)
-
+col1, col2, col3 = st.columns(3)    
 with col1:
     device_id_list = list(device_data.keys())
     device_id = st.selectbox("Select Device ID:", options=sorted(device_id_list), index=0)
