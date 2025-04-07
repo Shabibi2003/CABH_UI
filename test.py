@@ -9,20 +9,18 @@ import calendar
 from matplotlib.colors import ListedColormap, BoundaryNorm
 
 st.set_page_config(
-    page_title="Indoor Air Quality Dashboard",  # Title on browser tab
-    page_icon="🌫️",                            # Emoji or image
-    layout="centered",                              # 'centered' or 'wide'
-    initial_sidebar_state="expanded"            # Or 'collapsed'
+    page_title="Indoor Air Quality Dashboard",  
+    page_icon="🌫️",                            
+    layout="centered",                             
+    initial_sidebar_state="expanded"            
 )
 
 
-# Database connection details
 host = "139.59.34.149"
 user = "neemdb"
 password = "(#&pxJ&p7JvhA7<B"
 database = "cabh_iaq_db"
 
-# Device Data Dictionary (deviceID, address, typology)
 device_data = {
     "1201240075": ("Hines Office, 12th Floor, One Horizon Centre, Sec-43, Gurugram", "Office"),
     "1201240078": ("Hines Office, 12th Floor, One Horizon Centre, Sec-43, Gurugram", "Office"),
@@ -57,8 +55,6 @@ device_data = {
     "1202240012": ("St. Mary's School, Dwarka Sec-19", "School"),
 }
 
-# Streamlit app
-# st.title("CABH Indoor Air Quality Monitoring")
 
 pollutant_display_names = {
     'aqi': 'AQI',
@@ -74,7 +70,8 @@ def plot_and_display_feature_heatmaps(df, features, year, month):
         'pm25': [0, 12, 35, 55, 150, 250, 500],
         'pm10': [0, 20, 50, 100, 250, 350, 500],
         'co2': [0, 900, 10000],
-        'voc': [0, 500, 1000]
+        'voc': [0, 500, 1000],
+        'temp': [0, 22, 27, 50]
     }
 
     feature_labels = {
@@ -82,7 +79,8 @@ def plot_and_display_feature_heatmaps(df, features, year, month):
         'pm25': ['Good', 'Satisfactory', 'Moderate', 'Poor', 'Very Poor', 'Severe'],
         'pm10': ['Good', 'Satisfactory', 'Moderate', 'Poor', 'Very Poor', 'Severe'],
         'co2': ['Good', 'Poor'],
-        'voc': ['Good', 'Poor']
+        'voc': ['Good', 'Poor'],
+        'temp': ['Low', 'Normal', 'High']
     }
 
     # Filter data for the selected month
@@ -214,7 +212,7 @@ if st.button("Generate Heatmaps"):
 
         # Query to fetch data
         query = """
-        SELECT id, deviceID, datetime, pm25, pm10, aqi, co2, voc, temp, humidity, battery, viral_index
+        SELECT id, deviceID, datetime, pm25, pm10, aqi, co2, voc, temp, humidity, battery
         FROM reading_db
         WHERE deviceID = %s AND YEAR(datetime) = %s AND MONTH(datetime) = %s;
         """
@@ -224,7 +222,7 @@ if st.button("Generate Heatmaps"):
         #st.success("Data fetched successfully.")
         if rows:
             # Process data
-            df = pd.DataFrame(rows, columns=["id", "deviceID", "datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity", "battery", "viral_index"])
+            df = pd.DataFrame(rows, columns=["id", "deviceID", "datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity", "battery"])
             df['datetime'] = pd.to_datetime(df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
             df.set_index('datetime', inplace=True)
 
