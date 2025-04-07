@@ -117,7 +117,7 @@ def plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names)
             ax.legend()
             ax.grid(True)
             st.pyplot(fig)
-            plt.close()
+            # plt.close()
 
 # Function to plot and display heatmaps for each feature (pollutant)
 def plot_and_display_feature_heatmaps(df, features, year, month):
