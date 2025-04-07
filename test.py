@@ -155,7 +155,7 @@ def plot_and_display_feature_heatmaps(indoor_df, features, year, month):
             continue
 
         # Fill the calendar grid with daily averages
-        calendar_data.fill(np.nan)  # Reset the grid
+        calendar_data.fill(np.nan) 
         for day in range(1, num_days + 1):
             if day in daily_averages.index.day:
                 daily_avg = daily_averages.loc[daily_averages.index.day == day, feature].mean()
@@ -209,7 +209,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<h1 class="title">Indoor Air Quality Trends</h1>', unsafe_allow_html=True)
+st.markdown('<h1 class="title">Indoor & Outdoor Air Quality Trends</h1>', unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
 # Create columns for user inputs (deviceID, year, month)
@@ -242,8 +242,8 @@ st.write(f"Typology: {device_info[1]}")
 st.markdown('<div class="red-line"></div>', unsafe_allow_html=True)
 
 # Button to generate line charts
-if st.button("Generate Line Charts"):
-    with st.spinner("Generating Line Charts...please wait"):
+if st.button("Generate Charts"):
+    with st.spinner("Generating Charts...please wait"):
         if not device_id.strip():
             st.error("Device ID cannot be empty.")
             st.stop()
@@ -292,11 +292,11 @@ if st.button("Generate Line Charts"):
                 outdoor_df = pd.DataFrame(outdoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
                 outdoor_df['datetime'] = pd.to_datetime(outdoor_df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
                 outdoor_df.set_index('datetime', inplace=True)
-                outdoor_df = outdoor_df.resample('D').mean()  # Resample to daily averages
+                outdoor_df = outdoor_df.resample('D').mean()  
 
-                features = ['pm25', 'pm10', 'aqi', 'co2', 'voc', 'temp', 'humidity']  # Define the list of features
+                features = ['pm25', 'pm10', 'aqi', 'co2', 'voc', 'temp', 'humidity'] 
                 plot_and_display_feature_heatmaps(indoor_df, features, year, selected_month)
-
+                st.write("Line Charts")
                 plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names)
 
             else:
