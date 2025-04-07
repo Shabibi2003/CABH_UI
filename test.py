@@ -117,7 +117,7 @@ def plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names)
             ax.legend()
             ax.grid(True)
             st.pyplot(fig)
-            # plt.close()
+            plt.close()
 
 # Function to plot and display heatmaps for each feature (pollutant)
 def plot_and_display_feature_heatmaps(df, features, year, month):
@@ -279,6 +279,8 @@ if st.button("Generate Line Charts"):
 
                 # Plot line charts
                 plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names)
+                for feature in pollutant_display_names.keys():
+                    plot_and_display_feature_heatmaps(df, features, year, month)
             else:
                 st.warning("No data found for the given Device IDs and selected month.")
 
