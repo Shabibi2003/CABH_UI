@@ -292,6 +292,14 @@ if st.button("Generate Charts"):
                 outdoor_df = pd.DataFrame(outdoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
                 outdoor_df['datetime'] = pd.to_datetime(outdoor_df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
                 outdoor_df.set_index('datetime', inplace=True)
+                
+                outdoor_csv = outdoor_df.to_csv().encode('utf-8')  
+                st.download_button(
+                    label="📥 Download Outdoor Data as CSV",
+                    data=outdoor_csv,
+                    file_name='outdoor_data.csv',
+                    mime='text/csv'
+                )
                 outdoor_df = outdoor_df.resample('D').mean()  
 
                 features = ['pm25', 'pm10', 'aqi', 'co2', 'voc', 'temp', 'humidity'] 
