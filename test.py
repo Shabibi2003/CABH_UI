@@ -283,7 +283,7 @@ if st.button("Generate Charts"):
 
             if indoor_rows and outdoor_rows:
                 # Process indoor data
-                 indoor_df = pd.DataFrame(indoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
+                indoor_df = pd.DataFrame(indoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
                 indoor_df['datetime'] = pd.to_datetime(indoor_df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
                 indoor_df.set_index('datetime', inplace=True)
                 
