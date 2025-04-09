@@ -191,6 +191,33 @@ def plot_and_display_feature_heatmaps(indoor_df, features, year, month):
 
         st.pyplot(fig)
         plt.close()
+
+def plot_indoor_vs_outdoor_scatter(indoor_df, outdoor_df, pollutants):
+    for pollutant in pollutants:
+        if pollutant in indoor_df.columns and pollutant in outdoor_df.columns:
+            # Drop rows where either indoor or outdoor values are NaN for the given pollutant
+            data = pd.merge(indoor_df[[pollutant]], outdoor_df[[pollutant]], left_index=True, right_index=True, how='inner')
+            
+            if data.empty:
+                continue
+            
+            # Scatter plot
+            fig, ax = plt.subplots(figsize=(8, 6))
+            ax.scatter(data[pollutant + '_x'], data[pollutant + '_y'], color='purple', alpha=0.7)
+            
+            # Set title and labels
+            ax.set_title(f"Indoor vs Outdoor - {pollutant.upper()}", fontsize=14)
+            ax.set_xlabel(f"{pollutant.upper()} (Indoor)", fontsize=12)
+            ax.set_ylabel(f"{pollutant.upper()} (Outdoor)", fontsize=12)
+            
+            # # Optional: Add a 45-degree line (if you're expecting a direct correlation)
+            # ax.plot([data[pollutant + '_x'].min(), data[pollutant + '_x'].max()],
+            #         [data[pollutant + '_x'].min(), data[pollutant + '_x'].max()],
+            #         color='red', linestyle='--', lw=2)  # Optional line
+            
+            ax.grid(True)
+            st.pyplot(fig)
+            plt.close()
 # Streamlit UI
 st.markdown("""
     <style>
