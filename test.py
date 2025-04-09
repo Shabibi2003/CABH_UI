@@ -283,16 +283,43 @@ if st.button("Generate Charts"):
 
             if indoor_rows and outdoor_rows:
                 # Process indoor data
-                indoor_df = pd.DataFrame(indoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
+                 indoor_df = pd.DataFrame(indoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
                 indoor_df['datetime'] = pd.to_datetime(indoor_df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
                 indoor_df.set_index('datetime', inplace=True)
-                indoor_df = indoor_df.resample('D').mean()  # Resample to daily averages
-
+                
+                # Filter indoor data: Remove rows with zero in specific columns before resampling
+                columns_to_check_indoor = ['pm25', 'pm10', 'aqi', 'temp']  # Modify as needed
+                indoor_df = indoor_df[(indoor_df[columns_to_check_indoor] != 0).all(axis=1)]
+                
+                # Now resample to daily averages after filtering out zero values
+                indoor_df = indoor_df.resample('D').mean()
+                
                 # Process outdoor data
                 outdoor_df = pd.DataFrame(outdoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
                 outdoor_df['datetime'] = pd.to_datetime(outdoor_df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
                 outdoor_df.set_index('datetime', inplace=True)
-                outdoor_df = outdoor_df.resample('D').mean()  
+                
+                # Filter outdoor data: Remove rows with zero in specific columns before resampling
+                columns_to_check_outdoor = ['pm25', 'pm10', 'aqi']  # Modify as needed
+                outdoor_df = outdoor_df[(outdoor_df[columns_to_check_outdoor] != 0).all(axis=1)]
+                
+                # outdoor_csv = outdoor_df.to_csv().encode('utf-8')  
+                # st.download_button(
+                #     label="📥 Download Outdoor Data with Datetime",
+                #     data=outdoor_csv,
+                #     file_name='outdoor_mean_data.csv',
+                #     mime='text/csv'
+                # )
+                # Now resample to daily averages after filtering out zero values
+                outdoor_df = outdoor_df.resample('D').mean()
+
+                # outdoor_csv = outdoor_df.to_csv().encode('utf-8')  
+                # st.download_button(
+                #     label="📥 Download Outdoor Data with Datetime",
+                #     data=outdoor_csv,
+                #     file_name='outdoor_data.csv',
+                #     mime='text/csv'
+                # ) 
 
                 features = ['pm25', 'pm10', 'aqi', 'co2', 'voc', 'temp', 'humidity'] 
                 plot_and_display_feature_heatmaps(indoor_df, features, year, selected_month)
