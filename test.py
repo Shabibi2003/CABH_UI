@@ -56,6 +56,12 @@ device_data = {
     "1202240012": ("St. Mary's School, Dwarka Sec-19", "School"),
 }
 
+residential_ids = [
+    "1203240075", "1201240077", "1201240072", "1203240079", "1201240079",
+    "1201240085", "1203240083", "1203240073", "1203240074", "1201240076",
+    "1212230160", "1201240073", "1203240080", "1201240074"
+]
+
 # Mapping of indoor device IDs to outdoor device IDs
 indoor_to_outdoor_mapping = {
     "1202240026": "THIRD_DPCC_SCR_RKPURAM",
