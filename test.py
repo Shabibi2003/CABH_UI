@@ -227,7 +227,7 @@ def plot_indoor_vs_outdoor_scatter(indoor_df, outdoor_df, pollutants):
             plt.close()
 
 # Function to plot yearly data for residential buildings divided into seasons
-def plot_residential_seasonal_line_chart(indoor_df, pollutant, year):
+def plot_residential_seasonal_line_chart(yearly_df, pollutant, year):
     # Connect to the database to fetch yearly data
     try:
         conn = mysql.connector.connect(
