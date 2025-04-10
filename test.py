@@ -218,6 +218,45 @@ def plot_indoor_vs_outdoor_scatter(indoor_df, outdoor_df, pollutants):
             ax.grid(True)
             st.pyplot(fig)
             plt.close()
+
+def plot_residential_seasonal_line_chart(indoor_df, pollutant, year):
+    # Filter out rows with zero values in the pollutant column
+    indoor_df = indoor_df[indoor_df[pollutant] != 0]
+
+    # Define seasonal ranges
+    seasons = {
+        "Spring": [2, 3, 4],  # February, March, April
+        "Summer": [5, 6, 7],  # May, June, July
+        "Autumn": [8, 9, 10], # August, September, October
+        "Winter": [11, 12, 1] # November, December, January
+    }
+
+    # Filter data for the specified year and the previous December for Winter
+    indoor_df = indoor_df[(indoor_df.index.year == year) | ((indoor_df.index.year == year - 1) & (indoor_df.index.month == 12))]
+
+    # Create a line chart for each season
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for season, months in seasons.items():
+        seasonal_data = indoor_df[indoor_df.index.month.isin(months)]
+        if not seasonal_data.empty:
+            seasonal_data = seasonal_data.resample('D').mean()  # Ensure daily resampling for consistent plotting
+            ax.plot(seasonal_data.index, seasonal_data[pollutant], label=season)
+        else:
+            # Add a placeholder line for missing data
+            ax.plot([], [], label=f"{season} (No Data)")
+
+    # Set chart title and labels
+    ax.set_title(f"Yearly {pollutant.upper()} Trends for Residential Buildings ({year})", fontsize=14)
+    ax.set_xlabel("Date", fontsize=12)
+    ax.set_ylabel(f"{pollutant.upper()}", fontsize=12)
+    ax.legend(title="Season")
+    ax.grid(True)
+
+    # Ensure the x-axis shows the full date range
+    ax.set_xlim(indoor_df.index.min(), indoor_df.index.max())
+
+    st.pyplot(fig)
+    plt.close()
 # Streamlit UI
 st.markdown("""
     <style>
