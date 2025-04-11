@@ -227,37 +227,37 @@ def plot_indoor_vs_outdoor_scatter(indoor_df, outdoor_df, pollutants):
             plt.close()
 
 # Function to plot yearly data for residential buildings divided into seasons
-def plot_residential_seasonal_line_chart(yearly_df, pollutant, year):
+def plot_residential_seasonal_line_chart(indoor_df, pollutant, year):
     # Connect to the database to fetch yearly data
-    try:
-        conn = mysql.connector.connect(
-            host=host,
-            user=user,
-            password=password,
-            database=database
-        )
-        cursor = conn.cursor()
+    # try:
+    #     conn = mysql.connector.connect(
+    #         host=host,
+    #         user=user,
+    #         password=password,
+    #         database=database
+    #     )
+    #     cursor = conn.cursor()
 
-        # Query to fetch yearly data for the indoor device
-        yearly_query = """
-        SELECT datetime, pm25, pm10, aqi, co2, voc, temp, humidity
-        FROM reading_db
-        WHERE deviceID = %s AND YEAR(datetime) = %s;
-        """
-        cursor.execute(yearly_query, (device_id, year))
-        yearly_rows = cursor.fetchall()
+    #     # Query to fetch yearly data for the indoor device
+    #     yearly_query = """
+    #     SELECT datetime, pm25, pm10, aqi, co2, voc, temp, humidity
+    #     FROM reading_db
+    #     WHERE deviceID = %s AND YEAR(datetime) = %s;
+    #     """
+    #     cursor.execute(yearly_query, (device_id, year))
+    #     yearly_rows = cursor.fetchall()
 
-        if not yearly_rows:
-            st.warning(f"No yearly data found for Device ID {device_id} in {year}.")
-            return
+    #     if not yearly_rows:
+    #         st.warning(f"No yearly data found for Device ID {device_id} in {year}.")
+    #         return
 
-        # Create a DataFrame for yearly data
-        yearly_df = pd.DataFrame(yearly_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
-        yearly_df['datetime'] = pd.to_datetime(yearly_df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
-        yearly_df.set_index('datetime', inplace=True)
+    #     # Create a DataFrame for yearly data
+    #     yearly_df = pd.DataFrame(yearly_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
+    #     yearly_df['datetime'] = pd.to_datetime(yearly_df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
+    #     yearly_df.set_index('datetime', inplace=True)
 
-        # Filter out rows with zero values in the pollutant column
-        yearly_df = yearly_df[yearly_df[pollutant] != 0]
+    #     # Filter out rows with zero values in the pollutant column
+    #     yearly_df = yearly_df[yearly_df[pollutant] != 0]
 
         # Define seasonal ranges
         seasons = {
@@ -268,12 +268,12 @@ def plot_residential_seasonal_line_chart(yearly_df, pollutant, year):
         }
 
         # Filter data for the specified year and the previous December for Winter
-        yearly_df = yearly_df[(yearly_df.index.year == year) | ((yearly_df.index.year == year - 1) & (yearly_df.index.month == 12))]
+        yearly_df = indoor_df[(indoor_df.index.year == year) | ((indoor_df.index.year == year - 1) & (indoor_df.index.month == 12))]
 
         # Create a line chart for each season
         fig, ax = plt.subplots(figsize=(10, 6))
         for season, months in seasons.items():
-            seasonal_data = yearly_df[yearly_df.index.month.isin(months)]
+            seasonal_data = indoor_df[indoor_df.index.month.isin(months)]
             if not seasonal_data.empty:
                 seasonal_data = seasonal_data.resample('D').mean()  # Ensure daily resampling for consistent plotting
                 ax.plot(seasonal_data.index, seasonal_data[pollutant], label=season)
@@ -289,20 +289,20 @@ def plot_residential_seasonal_line_chart(yearly_df, pollutant, year):
         ax.grid(True)
 
         # Ensure the x-axis shows the full date range
-        ax.set_xlim(yearly_df.index.min(), yearly_df.index.max())
+        ax.set_xlim(indoor_df.index.min(), indoor_df.index.max())
 
         st.pyplot(fig)
         plt.close()
 
-    except mysql.connector.Error as e:
-        st.error(f"Database error while fetching yearly data: {e}")
-    except Exception as e:
-        st.error(f"An unexpected error occurred: {e}")
-    finally:
-        # Ensure the database connection is closed
-        if 'conn' in locals() and conn.is_connected():
-            cursor.close()
-            conn.close()
+    # except mysql.connector.Error as e:
+    #     st.error(f"Database error while fetching yearly data: {e}")
+    # except Exception as e:
+    #     st.error(f"An unexpected error occurred: {e}")
+    # finally:
+    #     # Ensure the database connection is closed
+    #     if 'conn' in locals() and conn.is_connected():
+    #         cursor.close()
+    #         conn.close()
 
 # Streamlit UI
 st.markdown("""
