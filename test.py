@@ -129,7 +129,8 @@ def plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names,
         if f"{pollutant}_indoor" in combined_df.columns and f"{pollutant}_outdoor" in combined_df.columns:
             fig, ax = plt.subplots(figsize=(10, 6))
             combined_df[f"{pollutant}_indoor"].plot(ax=ax, label=f"{pollutant_display_names[pollutant]} (Indoor)", color='blue')
-            combined_df[f"{pollutant}_outdoor"].plot(ax=ax, label=f"{pollutant_display_names[pollutant]} (Outdoor)", color='orange')
+            if pollutant.lower() not in ['co2','voc'] and outdoor_col in combined_df.columns:
+                combined_df[f"{pollutant}_outdoor"].plot(ax=ax, label=f"{pollutant_display_names[pollutant]} (Outdoor)", color='orange')
             ax.set_title(f"{pollutant_display_names[pollutant]} - Indoor vs Outdoor", fontsize=14)
             ax.set_xlabel("Date", fontsize=12)
             ax.set_ylabel(pollutant_display_names[pollutant], fontsize=12)
