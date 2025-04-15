@@ -373,8 +373,6 @@ if st.button("Generate Charts"):
                 indoor_df_hourly = indoor_df_hourly[(indoor_df_hourly[columns_to_check_indoor] != 0).all(axis=1)]
 
                 indoor_df_hourly = indoor_df_hourly.resample('H').mean()
-
-
                 
                 # Process outdoor data
                 outdoor_df = pd.DataFrame(outdoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
@@ -393,7 +391,7 @@ if st.button("Generate Charts"):
                 outdoor_df_hourly.set_index('datetime', inplace=True)
 
                 # Filter outdoor data: Remove rows with zero in specific columns before resampling
-                columns_to_check_outdoor = ['pm25', 'pm10', 'aqi']  # Modify as needed
+                columns_to_check_outdoor = ['pm25', 'pm10', 'aqi']  
                 outdoor_df_hourly = outdoor_df_hourly[(outdoor_df_hourly[columns_to_check_outdoor] != 0).all(axis=1)]
 
                 # Resample to hourly averages after filtering out zero values
