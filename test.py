@@ -204,25 +204,44 @@ def plot_and_display_feature_heatmaps(indoor_df, features, year, month, all_figs
         st.pyplot(fig)
         all_figs[f"{feature}_heatmap"] = fig
 
-def plot_indoor_vs_outdoor_scatter(indoor_df, outdoor_df, pollutants, all_figs):
-    # Resample to hourly averages
-    indoor_df_hourly = indoor_df.resample('H').mean()
-    outdoor_df_hourly = outdoor_df.resample('H').mean()
+def plot_indoor_vs_outdoor_scatter(indoor_df_hourly, outdoor_df_hourly, pollutants, all_figs):
+    # Ensure required columns exist in both DataFrames
+    available_pollutants = [
+        pollutant for pollutant in pollutants
+        if pollutant in indoor_df_hourly.columns and pollutant in outdoor_df_hourly.columns
+    ]
 
-    for pollutant in pollutants:
-        if pollutant in indoor_df_hourly.columns and pollutant in outdoor_df_hourly.columns:
-            data = pd.merge(indoor_df_hourly[[pollutant]], outdoor_df_hourly[[pollutant]], left_index=True, right_index=True, how='inner')
-            if data.empty:
-                continue
+    if not available_pollutants:
+        st.warning("No common pollutants found in indoor and outdoor data for scatter plot.")
+        return
 
-            fig, ax = plt.subplots(figsize=(8, 6))
-            ax.scatter(data[pollutant + '_x'], data[pollutant + '_y'], color='purple', alpha=0.7)
-            ax.set_title(f"Hourly Avg: Indoor vs Outdoor - {pollutant.upper()}", fontsize=14)
-            ax.set_xlabel(f"{pollutant.upper()} (Indoor)", fontsize=12)
-            ax.set_ylabel(f"{pollutant.upper()} (Outdoor)", fontsize=12)
-            ax.grid(True)
-            st.pyplot(fig)
-            all_figs[f"{pollutant}_hourly_scatter_plot"] = fig
+    for pollutant in available_pollutants:
+        data = pd.merge(
+            indoor_df_hourly[[pollutant]], 
+            outdoor_df_hourly[[pollutant]], 
+            left_index=True, 
+            right_index=True, 
+            how='inner'
+        )
+
+        if data.empty:
+            continue
+
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        # Basic scatter plot without color or legend
+        ax.scatter(data.iloc[:, 0], data.iloc[:, 1], alpha=0.6)
+
+        # Plot customization
+        ax.set_title(f"Hourly Avg: Indoor vs Outdoor - {pollutant.upper()}", fontsize=14)
+        ax.set_xlabel(f"{pollutant.upper()} (Indoor)", fontsize=12)
+        ax.set_ylabel(f"{pollutant.upper()} (Outdoor)", fontsize=12)
+        ax.grid(True)
+
+        # Show plot
+        st.pyplot(fig)
+        all_figs[f"{pollutant}_hourly_scatter_plot"] = fig
+
 
 # Function to plot yearly data for residential buildings divided into seasons
 def plot_residential_seasonal_line_chart(indoor_df, pollutant, year, all_figs):
