@@ -253,17 +253,6 @@ def plot_residential_seasonal_line_chart(indoor_df, pollutant, year, all_figs):
     all_figs[f"{pollutant}_seasonal_chart_{year}"] = fig
 
 
-    # except mysql.connector.Error as e:
-    #     st.error(f"Database error while fetching yearly data: {e}")
-    # except Exception as e:
-    #     st.error(f"An unexpected error occurred: {e}")
-    # finally:
-    #     # Ensure the database connection is closed
-    #     if 'conn' in locals() and conn.is_connected():
-    #         cursor.close()
-    #         conn.close()
-
-# Streamlit UI
 st.markdown("""
     <style>
         .title {
@@ -312,8 +301,6 @@ st.write(f"Address: {device_info[0]}")
 st.write(f"Typology: {device_info[1]}")
 
 st.markdown('<div class="red-line"></div>', unsafe_allow_html=True)
-
-
 
 # Button to generate line charts
 if st.button("Generate Charts"):
