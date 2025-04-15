@@ -345,7 +345,7 @@ if st.button("Generate Charts"):
             WHERE deviceID = %s AND YEAR(datetime) = %s AND MONTH(datetime) = %s;
             """
             cursor.execute(indoor_query_month, (device_id, year, selected_month))
-            indoor_rows = cursor.fetchall()
+            indoor_rows_month = cursor.fetchall()
 
             # Query to fetch all indoor data for the year (for seasonal trends)
             indoor_query_year = """
@@ -365,30 +365,19 @@ if st.button("Generate Charts"):
             cursor.execute(outdoor_query, (outdoor_device_id, year, selected_month))
             outdoor_rows = cursor.fetchall()
 
-            if indoor_rows and outdoor_rows:
+            if indoor_rows_month and outdoor_rows:
                 # Process indoor data for the selected month
-                indoor_df = pd.DataFrame(indoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
-                indoor_df['datetime'] = pd.to_datetime(indoor_df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
-                indoor_df.set_index('datetime', inplace=True)
+                indoor_df_month = pd.DataFrame(indoor_rows_month, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
+                indoor_df_month['datetime'] = pd.to_datetime(indoor_df_month['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
+                indoor_df_month.set_index('datetime', inplace=True)
 
                 # Filter indoor data: Remove rows with zero in specific columns before resampling
                 columns_to_check_indoor = ['pm25', 'pm10', 'aqi', 'temp']  # Modify as needed
-                indoor_df = indoor_df[(indoor_df[columns_to_check_indoor] != 0).all(axis=1)]
+                indoor_df_month = indoor_df_month[(indoor_df_month[columns_to_check_indoor] != 0).all(axis=1)]
 
                 # Resample to daily averages after filtering out zero values
-                indoor_df = indoor_df.resample('D').mean()
+                indoor_df_month = indoor_df_month.resample('D').mean()
 
-                indoor_df_hourly = pd.DataFrame(indoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
-                indoor_df_hourly['datetime'] = pd.to_datetime(indoor_df_hourly['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
-                indoor_df_hourly.set_index('datetime', inplace=True)
-
-                columns_to_check_indoor = ['pm25', 'pm10', 'aqi', 'temp']  # Modify as needed
-                indoor_df_hourly = indoor_df_hourly[(indoor_df_hourly[columns_to_check_indoor] != 0).all(axis=1)]
-
-                indoor_df_hourly = indoor_df_hourly.resample('H').mean()
-
-
-                
                 # Process outdoor data
                 outdoor_df = pd.DataFrame(outdoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
                 outdoor_df['datetime'] = pd.to_datetime(outdoor_df['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
@@ -401,33 +390,22 @@ if st.button("Generate Charts"):
                 # Resample to daily averages after filtering out zero values
                 outdoor_df = outdoor_df.resample('D').mean()
 
-                outdoor_df_hourly = pd.DataFrame(outdoor_rows, columns=["datetime", "pm25", "pm10", "aqi", "co2", "voc", "temp", "humidity"])
-                outdoor_df_hourly['datetime'] = pd.to_datetime(outdoor_df_hourly['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
-                outdoor_df_hourly.set_index('datetime', inplace=True)
-
-                # Filter outdoor data: Remove rows with zero in specific columns before resampling
-                columns_to_check_outdoor = ['pm25', 'pm10', 'aqi']  # Modify as needed
-                outdoor_df_hourly = outdoor_df_hourly[(outdoor_df_hourly[columns_to_check_outdoor] != 0).all(axis=1)]
-
-                # Resample to hourly averages after filtering out zero values
-                outdoor_df_hourly = outdoor_df_hourly.resample('H').mean()
-
                 # Generate heatmaps and other plots using one-month data
                 features = ['pm25', 'pm10', 'aqi', 'co2', 'voc', 'temp', 'humidity']
-                plot_and_display_feature_heatmaps(indoor_df, features, year, selected_month, all_figs)
+                plot_and_display_feature_heatmaps(indoor_df_month, features, year, selected_month, all_figs)
 
 
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown("<h3 style='font-size:30px; text-align:center; font-weight:bold;'>Line Charts of Indoor & Outdoor</h3>", unsafe_allow_html=True)
                 st.markdown("<br>", unsafe_allow_html=True)
 
-                plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names, all_figs)
+                plot_and_display_line_charts(indoor_df_month, outdoor_df, pollutant_display_names, all_figs)
 
 
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown("<h3 style='font-size:30px; text-align:center; font-weight:bold;'>Indoor vs Outdoor Scatter Plots</h3>", unsafe_allow_html=True)
                 st.markdown("<br>", unsafe_allow_html=True)
-                plot_indoor_vs_outdoor_scatter(indoor_df_hourly, outdoor_df_hourly, ['aqi', 'pm10', 'pm25'], all_figs)
+                plot_indoor_vs_outdoor_scatter(indoor_df_month, outdoor_df, ['aqi', 'pm10', 'pm25'], all_figs)
 
 
             else:
