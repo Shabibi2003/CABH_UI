@@ -125,19 +125,35 @@ def plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names,
         [indoor_df.add_suffix('_indoor'), outdoor_df.add_suffix('_outdoor')],
         axis=1
     )
+
     for pollutant in pollutant_display_names.keys():
-        if f"{pollutant}_indoor" in combined_df.columns and f"{pollutant}_outdoor" in combined_df.columns:
-            fig, ax = plt.subplots(figsize=(10, 6))
-            combined_df[f"{pollutant}_indoor"].plot(ax=ax, label=f"{pollutant_display_names[pollutant]} (Indoor)", color='blue')
-            if pollutant.lower() not in ['co2','voc'] and outdoor_col in combined_df.columns:
-                combined_df[f"{pollutant}_outdoor"].plot(ax=ax, label=f"{pollutant_display_names[pollutant]} (Outdoor)", color='orange')
-            ax.set_title(f"{pollutant_display_names[pollutant]} - Indoor vs Outdoor", fontsize=14)
-            ax.set_xlabel("Date", fontsize=12)
-            ax.set_ylabel(pollutant_display_names[pollutant], fontsize=12)
-            ax.legend()
-            ax.grid(True)
-            st.pyplot(fig)
-            all_figs[f"{pollutant}_line_chart"] = fig
+        indoor_col = f"{pollutant}_indoor"
+        outdoor_col = f"{pollutant}_outdoor"
+
+        # Skip plotting if indoor data doesn't exist
+        if indoor_col not in combined_df.columns:
+            continue
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+
+        # Plot indoor data
+        combined_df[indoor_col].plot(ax=ax, label=f"{pollutant_display_names[pollutant]} (Indoor)", color='blue')
+
+        # Plot outdoor data only if:
+        # - the pollutant is NOT CO2 or VOC
+        # - the column exists
+        if pollutant.lower() not in ['co2', 'voc'] and outdoor_col in combined_df.columns:
+            combined_df[outdoor_col].plot(ax=ax, label=f"{pollutant_display_names[pollutant]} (Outdoor)", color='orange')
+
+        ax.set_title(f"{pollutant_display_names[pollutant]} - Indoor vs Outdoor", fontsize=14)
+        ax.set_xlabel("Date", fontsize=12)
+        ax.set_ylabel(pollutant_display_names[pollutant], fontsize=12)
+        ax.legend()
+        ax.grid(True)
+
+        st.pyplot(fig)
+        all_figs[f"{pollutant}_line_chart"] = fig
+
 
 
 # Function to plot and display heatmaps for each feature (pollutant)
