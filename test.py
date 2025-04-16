@@ -458,12 +458,14 @@ if st.button("Generate Charts"):
                 indoor_df_year['datetime'] = pd.to_datetime(indoor_df_year['datetime'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
                 indoor_df_year.set_index('datetime', inplace=True)
 
-                st.markdown("<br>", unsafe_allow_html=True)
-                st.markdown("<h3 style='font-size:30px; text-align:center; font-weight:bold;'>Seasonal Line Chart for Residential Buildings</h3>", unsafe_allow_html=True)
-                st.markdown("<br>", unsafe_allow_html=True)
-                plot_residential_seasonal_line_chart(indoor_df_year, ['aqi', 'pm10', 'pm25'], year, all_figs)
-
-
+                # Check if the device ID belongs to residential buildings
+                if device_id in residential_ids:
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown("<h3 style='font-size:30px; text-align:center; font-weight:bold;'>Seasonal Line Chart for Residential Buildings</h3>", unsafe_allow_html=True)
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    plot_residential_seasonal_line_chart(indoor_df_year, ['aqi', 'pm10', 'pm25'], year, all_figs)
+                else:
+                    st.info("Seasonal line charts are only available for residential buildings.")
             else:
                 st.warning("No yearly data found for the selected Device ID.")
             
