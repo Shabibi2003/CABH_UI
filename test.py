@@ -123,12 +123,12 @@ pollutant_display_names = {
 def plot_and_display_line_charts(indoor_df, outdoor_df, pollutant_display_names, all_figs):
     # Define thresholds for pollutants
     thresholds = {
-        'aqi': 500,
+        'aqi': 300,
         'pm25': 250,
         'pm10': 350,
         'co2': 900,
         'voc': 500,
-        'temp': 18,
+        'temp': 28,
         'humidity': 70
     }
 
