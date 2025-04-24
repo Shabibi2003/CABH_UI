@@ -15,7 +15,7 @@ from PIL import Image
 st.set_page_config(
     page_title="Indoor Air Quality Dashboard",
     page_icon="🌫️",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="expanded"
 )
 
