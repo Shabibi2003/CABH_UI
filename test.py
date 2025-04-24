@@ -12,6 +12,12 @@ import io
 from io import BytesIO
 from PIL import Image
 
+st.set_page_config(
+    page_title="Indoor Air Quality Dashboard",
+    page_icon="🌫️",
+    layout="centered",
+    initial_sidebar_state="expanded"
+)
 
 def create_pdf_from_figs(fig_dict):
     pdf_buffer = BytesIO()
@@ -20,25 +26,6 @@ def create_pdf_from_figs(fig_dict):
             pdf.savefig(fig, bbox_inches='tight')
     pdf_buffer.seek(0)
     return pdf_buffer
-
-
-# def calculate_heat_index(temp_c, rh):
-#     """
-#     Calculate the heat index in Celsius using temperature (Celsius) and relative humidity (%).
-#     """
-#     # Convert Celsius to Fahrenheit
-#     T = temp_c * 9 / 5 + 32
-#     R = rh
-
-#     # Apply full formula (valid only for T >= 80°F and RH >= 40%)
-#     HI = (-42.379 + 2.04901523 * T + 10.14333127 * R
-#           - 0.22475541 * T * R - 0.00683783 * T ** 2
-#           - 0.05481717 * R ** 2 + 0.00122874 * T ** 2 * R
-#           + 0.00085282 * T * R ** 2 - 0.00000199 * T ** 2 * R ** 2)
-
-#     # Convert back to Celsius
-#     HI_C = (HI - 32) * 5 / 9
-#     return HI_C
 
 
 # Database connection details
@@ -351,7 +338,65 @@ st.markdown("""
 
 st.markdown('<h3 class="title">Indoor & Outdoor Air Quality Trends</h3>', unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import pandas as pd
+from PIL import Image
+import io
 
+# 1. Heat Index calculation function (reuse your validated logic)
+def calculate_heat_index(T, R):
+    T_f = T * 9 / 5 + 32
+    if T_f < 80:
+        HI_f = 0.5 * (T_f + 61.0 + ((T_f - 68.0) * 1.2) + (R * 0.094))
+    else:
+        HI_f = (-42.379 + 2.04901523 * T_f + 10.14333127 * R
+                - 0.22475541 * T_f * R - 0.00683783 * T_f ** 2
+                - 0.05481717 * R ** 2 + 0.00122874 * T_f ** 2 * R
+                + 0.00085282 * T_f * R ** 2 - 0.00000199 * T_f ** 2 * R ** 2)
+        if R < 13 and 80 <= T_f <= 112:
+            adjustment = ((13 - R) / 4) * ((17 - abs(T_f - 95)) / 17) ** 0.5
+            HI_f -= adjustment
+        elif R > 85 and 80 <= T_f <= 87:
+            adjustment = ((R - 85) / 10) * ((87 - T_f) / 5)
+            HI_f += adjustment
+    return (HI_f - 32) * 5 / 9  # Return in Celsius
+#-------------------------------------------------------------------------------
+# 2. Function to calculate and display the hourly heat index chart
+def plot_hourly_heat_index_chart(indoor_df_hourly, all_figs):
+    import streamlit as st
+
+    # Ensure temp and humidity exist
+    if 'temp' not in indoor_df_hourly.columns or 'humidity' not in indoor_df_hourly.columns:
+        st.warning("Temperature and Humidity data are required to calculate Heat Index.")
+        return
+
+    # Calculate Heat Index column
+    indoor_df_hourly['heat_index'] = indoor_df_hourly.apply(
+        lambda row: calculate_heat_index(row['temp'], row['humidity'])
+        if not np.isnan(row['temp']) and not np.isnan(row['humidity']) else np.nan,
+        axis=1
+    )
+
+    # Plot the hourly heat index line chart
+    fig, ax = plt.subplots(figsize=(12, 6))
+    indoor_df_hourly['heat_index'].plot(ax=ax, color='darkred', linewidth=2)
+    ax.set_title("Hourly Average Heat Index (°C)", fontsize=16)
+    ax.set_xlabel("Time", fontsize=12)
+    ax.set_ylabel("Heat Index (°C)", fontsize=12)
+    ax.grid(True)
+
+    # Display in Streamlit
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=100, bbox_inches='tight')
+    buf.seek(0)
+    img = Image.open(buf)
+    img = img.resize((int(img.width * 0.7), int(img.height * 0.7)))
+    st.image(img)
+
+    all_figs["hourly_heat_index"] = fig
+# --------------------------------------------------------------------------
 def plot_and_display_heat_index_heatmap(indoor_df, year, month, all_figs):
         num_days = calendar.monthrange(year, month)[1]
         first_day_of_month = calendar.monthrange(year, month)[0]
@@ -580,6 +625,10 @@ if st.button("Generate Charts"):
                     st.markdown("<br>", unsafe_allow_html=True)
                     plot_indoor_vs_outdoor_scatter(indoor_df_hourly, outdoor_df_hourly, ['aqi', 'pm10', 'pm25'], all_figs)
 
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.markdown("<h3 style='font-size:30px; text-align:left; font-weight:bold;'>Hourly Average Heat Index</h3>", unsafe_allow_html=True)
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    plot_hourly_heat_index_chart(indoor_df_hourly, all_figs)
 
                 else:
                     st.warning("No data found for the given Device ID and selected month.")
