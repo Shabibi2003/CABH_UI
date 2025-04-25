@@ -328,7 +328,7 @@ st.markdown("""
         <style>
             .title {
                 font-size: 18px;
-                text-align: left;
+                text-align: center;
                 padding: 20px;
             }
             .black-line {
@@ -339,14 +339,8 @@ st.markdown("""
         </style>
     """, unsafe_allow_html=True)
 
-st.markdown('<h3 class="title">Indoor & Outdoor Air Quality Trends</h3>', unsafe_allow_html=True)
+st.markdown('<h2 class="title">Indoor & Outdoor Air Quality Trends</h2>', unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
-import matplotlib.pyplot as plt
-import seaborn as sns
-import numpy as np
-import pandas as pd
-from PIL import Image
-import io
 
 # 1. Heat Index calculation function (reuse your validated logic)
 def calculate_heat_index(T, R):
