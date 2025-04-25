@@ -391,8 +391,8 @@ def plot_hourly_heat_index_chart(indoor_df_hourly, outdoor_df_hourly, all_figs):
     outdoor_df_hourly['heat_index'].plot(ax=ax, color='orange', linewidth=2, label="Outdoor Heat Index")
 
     # Add threshold lines with labels
-    ax.axhline(y=26, color='brown', linestyle='--', linewidth=1.5, label="Danger (26°C)")
-    ax.axhline(y=32, color='red', linestyle='--', linewidth=1.5, label="Extreme Danger (32°C)")
+    ax.axhline(y=27, color='brown', linestyle='--', linewidth=1.5, label="Caution (27°C)")
+    ax.axhline(y=40, color='red', linestyle='--', linewidth=1.5, label="Danger (40°C)")
 
     ax.set_title("Hourly Average Heat Index (°C)", fontsize=16)
     ax.set_xlabel("Time", fontsize=12)
