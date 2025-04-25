@@ -15,7 +15,7 @@ from PIL import Image
 st.set_page_config(
     page_title="Indoor Air Quality Dashboard",
     page_icon="🌫️",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="expanded"
 )
 
@@ -72,7 +72,8 @@ device_data = {
 residential_ids = [
     "1203240075", "1201240077", "1201240072", "1203240079", "1201240079",
     "1201240085", "1203240083", "1203240073", "1203240074", "1201240076",
-    "1212230160", "1201240073", "1203240080", "1201240074"
+    "1212230160", "1201240073", "1203240080", "1201240074","1202240011",
+    "1202240027", "1203240076", "1203240078", "1203240075", "1203240079",
 ]
 
 # Mapping of indoor device IDs to outdoor device IDs
@@ -80,6 +81,7 @@ indoor_to_outdoor_mapping = {
     "1202240026": "THIRD_DPCC_SCR_RKPURAM",
     "1202240025": "THIRD_DPCC_SCR_RKPURAM",
     "1203240081": "THIRD_DPCC_SCR_RKPURAM",
+    "1201240075": "CPCB1703205345",
     "1202240011": "DELCPCB010",
     "1202240027": "DELCPCB010",
     "1203240076": "DELCPCB010",
@@ -105,7 +107,8 @@ indoor_to_outdoor_mapping = {
     "1202240029": "DELDPCC016",
     "1202240028": "DELDPCC016",
     "1202240010": "DELDPCC016",
-    "1202240012": "DELDPCC016",
+    "1202240012": "DELDPCC016"
+    
 }
 
 pollutant_display_names = {
@@ -364,16 +367,25 @@ def calculate_heat_index(T, R):
     return (HI_f - 32) * 5 / 9  # Return in Celsius
 #-------------------------------------------------------------------------------
 # 2. Function to calculate and display the hourly heat index chart
-def plot_hourly_heat_index_chart(indoor_df_hourly, all_figs):
-    import streamlit as st
+def plot_hourly_heat_index_chart(indoor_df_hourly, outdoor_df_hourly, all_figs):
 
-    # Ensure temp and humidity exist
+    # Ensure temp and humidity exist for both indoor and outdoor data
     if 'temp' not in indoor_df_hourly.columns or 'humidity' not in indoor_df_hourly.columns:
-        st.warning("Temperature and Humidity data are required to calculate Heat Index.")
+        st.warning("Indoor Temperature and Humidity data are required to calculate Heat Index.")
+        return
+    if 'temp' not in outdoor_df_hourly.columns or 'humidity' not in outdoor_df_hourly.columns:
+        st.warning("Outdoor Temperature and Humidity data are required to calculate Heat Index.")
         return
 
-    # Calculate Heat Index column
+    # Calculate Heat Index column for indoor data
     indoor_df_hourly['heat_index'] = indoor_df_hourly.apply(
+        lambda row: calculate_heat_index(row['temp'], row['humidity'])
+        if not np.isnan(row['temp']) and not np.isnan(row['humidity']) else np.nan,
+        axis=1
+    )
+
+    # Calculate Heat Index column for outdoor data
+    outdoor_df_hourly['heat_index'] = outdoor_df_hourly.apply(
         lambda row: calculate_heat_index(row['temp'], row['humidity'])
         if not np.isnan(row['temp']) and not np.isnan(row['humidity']) else np.nan,
         axis=1
@@ -381,10 +393,12 @@ def plot_hourly_heat_index_chart(indoor_df_hourly, all_figs):
 
     # Plot the hourly heat index line chart
     fig, ax = plt.subplots(figsize=(10, 6))
-    indoor_df_hourly['heat_index'].plot(ax=ax, color='darkred', linewidth=2)
+    indoor_df_hourly['heat_index'].plot(ax=ax, color='blue', linewidth=2, label="Indoor Heat Index")
+    outdoor_df_hourly['heat_index'].plot(ax=ax, color='orange', linewidth=2, label="Outdoor Heat Index")
     ax.set_title("Hourly Average Heat Index (°C)", fontsize=16)
     ax.set_xlabel("Time", fontsize=12)
     ax.set_ylabel("Heat Index (°C)", fontsize=12)
+    ax.legend()
     ax.grid(True)
 
     # Display in Streamlit
@@ -628,7 +642,7 @@ if st.button("Generate Charts"):
                     st.markdown("<br>", unsafe_allow_html=True)
                     st.markdown("<h3 style='font-size:30px; text-align:left; font-weight:bold;'>Hourly Average Heat Index</h3>", unsafe_allow_html=True)
                     st.markdown("<br>", unsafe_allow_html=True)
-                    plot_hourly_heat_index_chart(indoor_df_hourly, all_figs)
+                    plot_hourly_heat_index_chart(indoor_df_hourly, outdoor_df_hourly, all_figs)
 
                 else:
                     st.warning("No data found for the given Device ID and selected month.")
